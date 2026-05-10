@@ -1,0 +1,12 @@
+{
+  "name": "3_fs_module",
+  "version": "1.0.0",
+  "description": "Practicing Node Js",
+  "license": "ISC",
+  "author": "",
+  "main": "index.js",
+    "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
