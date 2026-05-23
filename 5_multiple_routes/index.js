@@ -1,8 +1,11 @@
 
 import express from 'express';
+import { connectDB } from './connectDB.js';
 import { studentRoutes } from './routes/student.js';
 import { teacherRoutes } from './routes/teacher.js';
 import 'dotenv/config'
+
+await connectDB();
 
 const app = express();
 
