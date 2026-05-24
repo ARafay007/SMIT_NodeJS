@@ -6,6 +6,7 @@
 import { Router } from 'express';
 import { dbo } from '../connectDB.js';
 import { ObjectId } from 'mongodb';
+import bcrypt from 'bcrypt';
 
 const route = Router();
 
@@ -90,10 +91,14 @@ route.get('/findAll', async (req, res) => {
 
 route.post('/', async (req, res) => {
     try{
-        const { name, content, song } = req.body;
+        const { name, content, song, password } = req.body;
+
+        const saltRounds = 10;
+
+        const hashedPassword = await bcrypt.hash(password, saltRounds);
 
         const collection = dbo.collection('practice_collection_1');
-        await collection.insertOne({ name, content, song })
+        await collection.insertOne({ name, content, song, password: hashedPassword })
 
         res.status(200).json({
             message: 'student data inserted successfully',
@@ -171,6 +176,30 @@ route.post('/studentFee', () => {
     }
     catch(error){
 
+    }
+});
+
+route.post('/signin', async (req, res) => {
+    try{
+        const { name, password } = req.body;
+
+        const collection = dbo.collection('practice_collection_1');
+        const data = await collection.findOne({ name });
+
+        const passwordMatch = await bcrypt.compare(password, data.password);
+        let signinMsg = 'Invalid username or password';
+
+        if(passwordMatch){
+            signinMsg = 'Logged in successfully';
+        }
+
+        res.status(200).json({signinMsg});
+    }
+    catch(error){
+        console.log(error);
+        res.status(400).json({
+            error
+        });
     }
 });
 
