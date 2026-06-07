@@ -7,6 +7,7 @@ import { Router } from 'express';
 import { dbo } from '../connectDB.js';
 import { ObjectId } from 'mongodb';
 import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 
 const route = Router();
 
@@ -44,10 +45,24 @@ route.get('/findOne', async (req, res) => {
 
 route.get('/findAll', async (req, res) => {
     try{
-        const collection = dbo.collection('movies');
-        // const data = await collection.find({},
+        // const collection = dbo.collection('movies');
+        // // const data = await collection.find({},
+        // //     {
+        // //         projection: {
+        // //             _id: 0,
+        // //             title: 1,
+        // //             plot: 1,
+        // //             runtime: 1,
+        // //             year: 1
+        // //         }
+        // //     }
+        // // ).limit(5).sort({year: 1}).toArray();
+
+        // const data = await collection.aggregate([
+        //     { $limit: 5 },
+        //     { $sort: { year: 1 } },
         //     {
-        //         projection: {
+        //         $project: {
         //             _id: 0,
         //             title: 1,
         //             plot: 1,
@@ -55,30 +70,19 @@ route.get('/findAll', async (req, res) => {
         //             year: 1
         //         }
         //     }
-        // ).limit(5).sort({year: 1}).toArray();
+        // ]).toArray();
 
-        const data = await collection.aggregate([
-            { $limit: 5 },
-            { $sort: { year: 1 } },
-            {
-                $project: {
-                    _id: 0,
-                    title: 1,
-                    plot: 1,
-                    runtime: 1,
-                    year: 1
-                }
-            }
-        ]).toArray();
+        // const totalMovies = await collection.aggregate([
+        //     { $count: 'film' }
+        // ]).toArray();
 
-        const totalMovies = await collection.aggregate([
-            { $count: 'film' }
-        ]).toArray();
+        const collection = dbo.collection('practice_collection_1');
+        const data = await collection.find().toArray();
 
         res.status(200).json({
             message: 'Student get route',
             data,
-            totalMovies,
+            // totalMovies,
         });
     }
     catch(error){
@@ -142,13 +146,13 @@ route.delete('/deleteById/:id', async (req, res) => {
         await dbo.collection('practice_collection_1').deleteOne({ _id: new ObjectId(id) })
 
         res.status(200).json({
-            message: 'student data deleted successfully',
+            message: 'student data deleted successfully'
         });
     }
     catch(error){
         console.log(error);
         res.status(400).json({
-            error
+            error: error.message
         });
     }
 });
@@ -179,28 +183,36 @@ route.post('/studentFee', () => {
     }
 });
 
-route.post('/signin', async (req, res) => {
-    try{
-        const { name, password } = req.body;
+// route.post('/signin', async (req, res) => {
+//     try{
+//         const { name, password } = req.body;
 
-        const collection = dbo.collection('practice_collection_1');
-        const data = await collection.findOne({ name });
+//         const collection = dbo.collection('practice_collection_1');
+//         const data = await collection.findOne({ name });
 
-        const passwordMatch = await bcrypt.compare(password, data.password);
-        let signinMsg = 'Invalid username or password';
+//         const passwordMatch = await bcrypt.compare(password, data.password);
+//         let signinMsg = 'Invalid username or password';
+//         let token = '';
 
-        if(passwordMatch){
-            signinMsg = 'Logged in successfully';
-        }
+//         if(passwordMatch){
+//             signinMsg = 'Logged in successfully';
 
-        res.status(200).json({signinMsg});
-    }
-    catch(error){
-        console.log(error);
-        res.status(400).json({
-            error
-        });
-    }
-});
+//             token = await jwt.sign(
+//                 { data: name },
+//                 process.env.JWT_SECRET,
+//                 { expiresIn: '1m' }
+//             );
+//         }
+
+
+//         res.status(200).json({signinMsg, token});
+//     }
+//     catch(error){
+//         console.log(error);
+//         res.status(400).json({
+//             error
+//         });
+//     }
+// });
 
 export { route as studentRoutes };
